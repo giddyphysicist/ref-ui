@@ -159,14 +159,6 @@ export const directSwap = async ({
   };
 
   const transactions: Transaction[] = [];
-  const neededStorage = await checkTokenNeedsStorageDeposit(tokenIn.id);
-  if (neededStorage) {
-    transactions.push({
-      receiverId: REF_FI_CONTRACT_ID,
-      functionCalls: [storageDepositAction({ amount: neededStorage })],
-    });
-  }
-
   const actions: RefFiFunctionCallOptions[] = [];
 
   if (tokenIn.symbol === wnearMetadata.symbol) {
@@ -213,14 +205,6 @@ export const directSwap = async ({
           amount: ONE_YOCTO_NEAR,
         },
       ],
-    });
-  }
-
-  const whitelist = await getWhitelistedTokens();
-  if (!whitelist.includes(tokenOut.id)) {
-    transactions.unshift({
-      receiverId: REF_FI_CONTRACT_ID,
-      functionCalls: [registerTokenAction(tokenOut.id)],
     });
   }
 
