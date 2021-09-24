@@ -20,6 +20,7 @@ import { FarmsPage } from '~pages/farms/FarmsPage';
 import { AirdropPage } from '~pages/AirdropPage';
 import { Context } from '~components/wrapper';
 import { isMobile } from '~utils/device';
+import GACookieConsent from '~components/layout/GACookieConsent';
 
 Modal.defaultStyles = {
   overlay: {
@@ -68,6 +69,7 @@ function App() {
           <Route path="/farms" component={AutoHeight(FarmsPage)} />
           <Route path="/" component={AutoHeight(SwapPage)} />
         </Switch>
+        <GACookieConsent />
       </div>
     </Router>
   );

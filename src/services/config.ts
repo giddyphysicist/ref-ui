@@ -17,6 +17,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.REF_FARM_CONTRACT_ID || 'v2.ref-farming.near',
         REF_TOKEN_ID: 'token.ref-finance.near',
         REF_AIRDROP_CONTRACT_ID: 's01.ref-airdrop.near',
+        GOOGLE_ANALYTICS_ID: '',
       };
     case 'development':
     case 'testnet':
@@ -36,6 +37,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.REF_FARM_CONTRACT_ID || 'v2.ref-farming.testnet',
         REF_TOKEN_ID: 'token.ref-finance.testnet',
         REF_AIRDROP_CONTRACT_ID: 'locker002.ref-dev.testnet',
+        GOOGLE_ANALYTICS_ID: '',
       };
     default:
       return {
@@ -53,6 +55,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.REF_FARM_CONTRACT_ID || 'v2.ref-farming.near',
         REF_TOKEN_ID: 'token.ref-finance.near',
         REF_AIRDROP_CONTRACT_ID: 's01.ref-airdrop.near',
+        GOOGLE_ANALYTICS_ID: '',
       };
   }
 }
