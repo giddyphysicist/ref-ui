@@ -36,7 +36,6 @@ import { wallet } from '~services/near';
 import Loading from '~components/layout/Loading';
 import { ConnectToNearBtn } from '~components/deposit/Deposit';
 import { useTokens } from '~state/token';
-import { Info } from '~components/icon/Info';
 import ReactTooltip from 'react-tooltip';
 import { getMftTokenId, toRealSymbol } from '~utils/token';
 import ReactModal from 'react-modal';
@@ -50,7 +49,7 @@ import { Link } from 'react-router-dom';
 import _ from 'lodash';
 import { FormattedMessage, useIntl } from 'react-intl';
 import parse from 'html-react-parser';
-import { FaArrowCircleRight } from 'react-icons/fa';
+import { FaArrowCircleRight, FaAngleDown, FaAngleUp } from 'react-icons/fa';
 
 export function FarmsPage() {
   const [unclaimedFarmsIsLoading, setUnclaimedFarmsIsLoading] = useState(false);
@@ -311,6 +310,7 @@ function FarmView({
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [claimLoading, setClaimLoading] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
   const [apr, setApr] = useState('0');
 
   const clipColor = '#00c08b';
@@ -547,10 +547,32 @@ function FarmView({
     let icons = '';
     if (farmsData.length > 1) {
       farmsData.forEach(function (item) {
-        icons += `<img className="h-8 w-8 xs:h-6 xs:w-6 mr-2 rounded-full" src="${item?.rewardToken?.icon}" />`;
+        let isPending = false;
+        if (
+          item.farm_status === 'Pending' &&
+          moment.unix(item.start_at).valueOf() > moment().valueOf()
+        ) {
+          isPending = true;
+        }
+        icons += `<img className="${
+          isPending ? 'opacity-50' : ''
+        } h-8 w-8 xs:h-6 xs:w-6 mr-2 rounded-full" src="${
+          item?.rewardToken?.icon
+        }" />`;
       });
     } else {
-      icons = `<img className="h-8 w-8 xs:h-6 xs:w-6 mr-2 rounded-full" src="${data?.rewardToken?.icon}" />`;
+      let isPending = false;
+      if (
+        farmsData[0].farm_status === 'Pending' &&
+        moment.unix(farmsData[0].start_at).valueOf() > moment().valueOf()
+      ) {
+        isPending = true;
+      }
+      icons = `<img className="${
+        isPending ? 'opacity-50' : ''
+      } h-8 w-8 xs:h-6 xs:w-6 mr-2 rounded-full" src="${
+        data?.rewardToken?.icon
+      }" />`;
     }
     return icons;
   }
@@ -642,6 +664,10 @@ function FarmView({
     return have;
   }
 
+  function showMoreDetails() {
+    setShowDetails(!showDetails);
+  }
+
   if (!tokens || tokens.length < 2 || farmsIsLoading) return <Loading />;
 
   tokens.sort((a, b) => {
@@ -678,59 +704,66 @@ function FarmView({
     <Card width="w-full" className="self-start" padding={'p-0'}>
       <div
         className={`${
-          ended ? 'rounded-t-xl bg-gray-300 bg-opacity-50' : ''
-        } flex items-center p-6 pb-0 relative overflow-hidden flex-wrap`}
+          ended ? 'bg-gray-500 bg-opacity-50' : 'bg-greenLight'
+        } rounded-t-xl`}
       >
-        <div className="flex items-center justify-center">
-          <div className="h-11 xs:h-6">
-            <div className="w-22 xs:w-12 flex items-center justify-between">
-              {images}
+        <div className="flex items-center px-6 pt-4 relative overflow-hidden flex-wrap">
+          <div className="flex items-center justify-center">
+            <div className="h-11 xs:h-6">
+              <div className="w-22 xs:w-12 flex items-center justify-between">
+                {images}
+              </div>
             </div>
           </div>
-        </div>
-        <div className="pl-2 order-2 lg:ml-auto xl:m-0">
-          <div>
-            <a href={`/pool/${PoolId}`} className="text-lg xs:text-sm">
-              {symbols}
-            </a>
+          <div className="pl-2 order-2 lg:ml-auto xl:m-0">
+            <div>
+              <a
+                href={`/pool/${PoolId}`}
+                className="text-xl xs:text-sm text-white"
+              >
+                {symbols}
+              </a>
+            </div>
           </div>
-        </div>
-        <div className="pl-2 order-3 lg:ml-auto xl:m-0">
-          <Link
-            title={intl.formatMessage({ id: 'view_pool' })}
-            to={{
-              pathname: `/pool/${PoolId}`,
-              state: { backToFarms: true },
-            }}
-            className="hover:text-green-500 text-xl xs:text-sm font-bold p-2 cursor-pointer text-green-500"
-          >
-            <span
-              data-type="dark"
-              data-place="bottom"
-              data-multiline={true}
-              data-tip={intl.formatMessage({ id: 'getLPTokenCopy' })}
+          <div className="pl-2 order-3 lg:ml-auto xl:m-0">
+            <Link
+              title={intl.formatMessage({ id: 'view_pool' })}
+              to={{
+                pathname: `/pool/${PoolId}`,
+                state: { backToFarms: true },
+              }}
+              className="hover:text-green-500 text-xl xs:text-sm font-bold p-2 cursor-pointer text-green-500"
             >
-              <FaArrowCircleRight />
-            </span>
-            <ReactTooltip />
-          </Link>
+              <span
+                data-type="dark"
+                data-place="bottom"
+                data-multiline={true}
+                data-tip={intl.formatMessage({ id: 'getLPTokenCopy' })}
+              >
+                <FaArrowCircleRight className="text-white" />
+              </span>
+              <ReactTooltip />
+            </Link>
+          </div>
+          {ended ? (
+            <div className="ended status-bar">
+              <FormattedMessage id="ended" defaultMessage="ENDED" />
+            </div>
+          ) : null}
+          {pending ? (
+            <div className="pending status-bar">
+              <FormattedMessage id="pending" defaultMessage="PENDING" />
+            </div>
+          ) : null}
         </div>
-        {ended ? (
-          <div className="ended status-bar">
-            <FormattedMessage id="ended" defaultMessage="ENDED" />
+        <div className="flex items-center px-6 pb-4 relative overflow-hidden flex-wrap text-xs text-gray-400">
+          <div className="flex">{parse(getRewardTokensIcon())}</div>
+          <div className="flex pl-3 order-2 text-white text-lg xs:text-sm">
+            {getRewardTokensSymbol()}
           </div>
-        ) : null}
-        {pending ? (
-          <div className="pending status-bar">
-            <FormattedMessage id="pending" defaultMessage="PENDING" />
-          </div>
-        ) : null}
+        </div>
       </div>
-      <div className="flex items-center p-6 relative overflow-hidden flex-wrap text-xs text-gray-400">
-        <div className="flex">{parse(getRewardTokensIcon())}</div>
-        <div className="flex pl-3 order-2">{getRewardTokensSymbol()}</div>
-      </div>
-      <div className="info-list p-6 pt-0" style={{ minHeight: '24rem' }}>
+      <div className="info-list p-6 pt-0" style={{ minHeight: '18rem' }}>
         <div className="text-center max-w-2xl">
           {error ? <Alert level="error" message={error.message} /> : null}
         </div>
@@ -797,40 +830,6 @@ function FarmView({
             </div>
             <div>{getAllUnclaimedReward()}</div>
           </div>
-
-          <div className="flex items-center justify-between text-sm py-2">
-            {farmStarted() ? (
-              <>
-                <div>
-                  <FormattedMessage
-                    id="start_date"
-                    defaultMessage="Start date"
-                  />
-                </div>
-                <div>
-                  {moment.unix(getStartTime()).format('YYYY-MM-DD HH:mm:ss')}
-                </div>
-              </>
-            ) : (
-              <Countdown
-                date={moment.unix(getStartTime()).valueOf()}
-                renderer={renderer}
-              />
-            )}
-          </div>
-
-          <div className="flex items-center justify-between text-sm py-2">
-            {showEndAt() ? (
-              <>
-                <div>
-                  <FormattedMessage id="end_date" defaultMessage="End date" />
-                </div>
-                <div>
-                  {moment.unix(getEndTime()).format('YYYY-MM-DD HH:mm:ss')}
-                </div>
-              </>
-            ) : null}
-          </div>
         </div>
         <div>
           {wallet.isSignedIn() ? (
@@ -870,6 +869,54 @@ function FarmView({
           ) : (
             <ConnectToNearBtn />
           )}
+        </div>
+        <div className="flex flex-wrap gap-2 justify-center mt-4">
+          <div
+            className="text-greenLight text-sm cursor-pointer"
+            onClick={() => showMoreDetails()}
+          >
+            <span>{showDetails ? 'Hide' : 'Details'}</span>
+            {showDetails ? (
+              <FaAngleUp className="float-right mt-1" />
+            ) : (
+              <FaAngleDown className="float-right mt-1" />
+            )}
+          </div>
+        </div>
+        <div className={`${showDetails ? null : 'hidden'}`}>
+          <div className="flex items-center justify-between text-sm py-2">
+            {farmStarted() ? (
+              <>
+                <div>
+                  <FormattedMessage
+                    id="start_date"
+                    defaultMessage="Start date"
+                  />
+                </div>
+                <div>
+                  {moment.unix(getStartTime()).format('YYYY-MM-DD HH:mm:ss')}
+                </div>
+              </>
+            ) : (
+              <Countdown
+                date={moment.unix(getStartTime()).valueOf()}
+                renderer={renderer}
+              />
+            )}
+          </div>
+
+          <div className="flex items-center justify-between text-sm py-2">
+            {showEndAt() ? (
+              <>
+                <div>
+                  <FormattedMessage id="end_date" defaultMessage="End date" />
+                </div>
+                <div>
+                  {moment.unix(getEndTime()).format('YYYY-MM-DD HH:mm:ss')}
+                </div>
+              </>
+            ) : null}
+          </div>
         </div>
       </div>
 
