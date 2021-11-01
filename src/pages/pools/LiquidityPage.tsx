@@ -211,6 +211,7 @@ function MobileLiquidityPage({
   const intl = useIntl();
   const [showSelectModal, setShowSelectModal] = useState<Boolean>();
   const [searchValue, setSearchValue] = useState<string>(tokenName);
+  const inputRef = useRef(null);
   const SelectModal = ({
     className,
     setShowModal,
@@ -261,6 +262,10 @@ function MobileLiquidityPage({
     );
   };
 
+  useEffect(() => {
+    inputRef.current.focus();
+  }, [searchTrigger]);
+
   return (
     <div className="flex flex-col w-3/6 md:w-11/12 lg:w-5/6 xs:w-11/12 m-auto md:show lg:hidden xl:hidden xs:show">
       <div className="mx-6 mb-6 mt-3">
@@ -306,6 +311,7 @@ function MobileLiquidityPage({
         </div>
         <div className="rounded my-2 text-gray-400 flex items-center pr-2 mx-6 mb-5 bg-inputDarkBg">
           <input
+            ref={inputRef}
             className={`text-sm outline-none rounded w-full py-2 px-3`}
             placeholder={intl.formatMessage({
               id: 'click_search_bar_to_search',
@@ -619,6 +625,10 @@ function LiquidityPage_({
 }) {
   const intl = useIntl();
   const [searchValue, setSearchValue] = useState<string>(tokenName);
+  const inputRef = useRef(null);
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, [searchTrigger]);
   return (
     <div className="flex flex-col whitespace-nowrap w-4/6 lg:w-5/6 xl:w-3/4 md:hidden m-auto xs:hidden">
       {/* {<WatchListCard watchList={watchList} />} */}
@@ -678,6 +688,7 @@ function LiquidityPage_({
             </div>
             <div className="rounded w-full my-2 text-gray-400 flex items-center pr-2 bg-inputDarkBg">
               <input
+                ref={inputRef}
                 className={`text-sm outline-none rounded w-full py-2 px-3`}
                 placeholder={intl.formatMessage({
                   id: 'press_enter_to_search',
