@@ -189,6 +189,8 @@ function MobileLiquidityPage({
   onHide,
   hideLowTVL,
   allPools,
+  searchTrigger,
+  setSearchTrigger,
 }: {
   pools: Pool[];
   tokenName: string;
@@ -198,6 +200,8 @@ function MobileLiquidityPage({
   hideLowTVL: Boolean;
   hasMore: boolean;
   allPools: number;
+  searchTrigger: Boolean;
+  setSearchTrigger: (mode: Boolean) => void;
   onHide: (mode: Boolean) => void;
   onSearch: (name: string) => void;
   onSortChange: (by: string) => void;
@@ -304,20 +308,25 @@ function MobileLiquidityPage({
           <input
             className={`text-sm outline-none rounded w-full py-2 px-3`}
             placeholder={intl.formatMessage({
-              id: 'search_pools',
+              id: 'click_search_bar_to_search',
             })}
             value={searchValue}
             onChange={(evt) => {
               setSearchValue(evt.target.value);
-              onSearch(evt.target.value);
             }}
-            // onKeyUp={(evt) => {
-            //   if (evt.keyCode === 13) {
-            //     onSearch(searchValue);
-            //   }
-            // }}
+            onKeyUp={(evt) => {
+              if (evt.keyCode === 13) {
+                onSearch(searchValue);
+                setSearchTrigger(!searchTrigger);
+              }
+            }}
           />
-          <FaSearch onClick={() => onSearch(searchValue)} />
+          <FaSearch
+            onClick={() => {
+              onSearch(searchValue);
+              setSearchTrigger(!searchTrigger);
+            }}
+          />
         </div>
         <div className=" mb-4 flex items-center mx-6">
           <div className="mr-2">
@@ -587,6 +596,8 @@ function LiquidityPage_({
   hideLowTVL,
   onSortChange,
   onOrderChange,
+  searchTrigger,
+  setSearchTrigger,
   nextPage,
   allPools,
 }: {
@@ -596,6 +607,8 @@ function LiquidityPage_({
   // watchList: WatchList[];
   tokenName: string;
   order: string;
+  searchTrigger: Boolean;
+  setSearchTrigger: (mode: Boolean) => void;
   onHide: (mode: Boolean) => void;
   allPools: number;
   hasMore: boolean;
@@ -667,20 +680,26 @@ function LiquidityPage_({
               <input
                 className={`text-sm outline-none rounded w-full py-2 px-3`}
                 placeholder={intl.formatMessage({
-                  id: 'search_pools',
+                  id: 'press_enter_to_search',
                 })}
                 value={searchValue}
                 onChange={(evt) => {
                   setSearchValue(evt.target.value);
-                  onSearch(evt.target.value);
+                  // onSearch(evt.target.value);
                 }}
-                // onKeyUp={(evt) => {
-                //   if (evt.keyCode === 13) {
-                //     onSearch(searchValue);
-                //   }
-                // }}
+                onKeyUp={(evt) => {
+                  if (evt.keyCode === 13) {
+                    onSearch(searchValue);
+                    setSearchTrigger(!searchTrigger);
+                  }
+                }}
               />
-              <FaSearch onClick={() => onSearch(searchValue)} />
+              <FaSearch
+                onClick={() => {
+                  onSearch(searchValue);
+                  setSearchTrigger(!searchTrigger);
+                }}
+              />
             </div>
           </div>
         </div>
@@ -767,10 +786,12 @@ export function LiquidityPage() {
   const [order, setOrder] = useState('desc');
   const AllPools = useAllPools();
   // const watchList = useAllWatchList();
+  const [searchTrigger, setSearchTrigger] = useState<Boolean>(false);
   const [hideLowTVL, setHideLowTVL] = useState<Boolean>(false);
   const [watchListTop, setWatchListTop] = useState<Boolean>(false);
   const [displayPools, setDisplayPools] = useState<Pool[]>();
   const { pools, hasMore, nextPage, loading } = usePools({
+    searchTrigger,
     tokenName,
     sortBy,
     order,
@@ -796,6 +817,8 @@ export function LiquidityPage() {
     <>
       <LiquidityPage_
         tokenName={tokenName}
+        searchTrigger={searchTrigger}
+        setSearchTrigger={setSearchTrigger}
         pools={displayPools}
         onHide={(isHide) => {
           localStorage.setItem(HIDE_LOW_TVL, isHide.toString());
@@ -813,6 +836,8 @@ export function LiquidityPage() {
         nextPage={nextPage}
       />
       <MobileLiquidityPage
+        searchTrigger={searchTrigger}
+        setSearchTrigger={setSearchTrigger}
         hideLowTVL={hideLowTVL}
         tokenName={tokenName}
         pools={displayPools}
